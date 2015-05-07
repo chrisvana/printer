@@ -35,8 +35,7 @@
         "//common/thread:counter",
         "//common/thread:threadpool",
         "//printer/base:mesh",
-        "//printer/base:octree",
-        "//third_party/poly2tri:poly2tri_lib"
+        "//printer/base:octree"
     ]
 } },
 
