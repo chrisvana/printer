@@ -21,8 +21,7 @@
     "cc_headers": [ "triangulation.h", "sweep_triangulation.h" ],
     "dependencies": [
         "//common/log:log",
-        "//printer/base:geometry",
-        "//third_party/poly2tri:poly2tri_lib"
+        "//printer/base:geometry"
     ]
 } },
 
