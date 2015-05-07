@@ -1,5 +1,1 @@
-[
-{ "config": {
-    "component": "printer"
-} }
-]
+[]
