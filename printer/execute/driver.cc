@@ -30,12 +30,12 @@ DEFINE_int32(driver_min_triangles_to_simplify, -1,
 DEFINE_double(driver_iso_level, 0.5,
               "ISO value to use when generating cubes.");
 
-DEFINE_double(driver_outer_boundary_iso_level, 0.9,
+DEFINE_double(driver_outer_boundary_iso_level, 0.1,
               "ISO value of outer boundary to use when simplifying. You will "
               "need to set --driver_boundary_is_single_voxel=false for this "
               "to be used.");
 
-DEFINE_double(driver_inner_boundary_iso_level, 0.1,
+DEFINE_double(driver_inner_boundary_iso_level, 0.9,
               "ISO value of inner boundary to use when simplifying. You will "
               "need to set --driver_boundary_is_single_voxel=false for this "
               "to be used.");
