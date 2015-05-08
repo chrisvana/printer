@@ -20,8 +20,8 @@ nice ./print_dicom --input_dicom_files=path/to/Downloads/Tomato/IM_* \
                    --marching_cubes_min_island_size=300 \
                    --driver_run_face_reduction=false \
                    --driver_boundary_is_single_voxel=false \
-                   --driver_outer_boundary_iso_level=0.1 \
-                   --driver_inner_boundary_iso_level=0.05 \
+                   --driver_outer_boundary_iso_level=0.05 \
+                   --driver_inner_boundary_iso_level=0.1 \
                    --driver_iso_level=0.15 \
                    --dicom_resolution_scale=4
 */
