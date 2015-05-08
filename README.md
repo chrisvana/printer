@@ -73,9 +73,9 @@ The [print_dicom](https://github.com/chrisvana/printer/blob/master/printer/examp
 
 ###### Voxel Region
 - _--horizontal_resolution_ (Horizontal resolution, in mm.) type: double
-    default: 0.10000000000000001
+    default: 0.1
 - _--vertical_resolution_ (Vertical resolution, in mm.) type: double
-    default: 0.10000000000000001
+    default: 0.1
 - _--print_region_size_ (Print region size, in mm.) type: double default: 100
 
 ###### Marching
@@ -98,10 +98,10 @@ The [print_dicom](https://github.com/chrisvana/printer/blob/master/printer/examp
     defined by driver_*_boundary_iso_level.) type: bool default: true
 - _--driver_inner_boundary_iso_level_ (ISO value of inner boundary to use when
     simplifying. You will need to set --driver_boundary_is_single_voxel=false
-    for this to be used.) type: double default: 0.90000000000000002
+    for this to be used.) type: double default: 0.9
 - _--driver_outer_boundary_iso_level_ (ISO value of outer boundary to use when
     simplifying. You will need to set --driver_boundary_is_single_voxel=false
-    for this to be used.) type: double default: 0.10000000000000001
+    for this to be used.) type: double default: 0.1
 
 ###### Dicom
 - _--dicom_set_point_mode_ (Mode to use when reconstructing voxel values. See
