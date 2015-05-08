@@ -34,8 +34,8 @@ The code works by:
   2. Filling a set of voxels based on the PrintObjects
   3. Uses a Marching Cubes algorithm to triangulate the voxels into a mesh
   4. Performs simplification
-    1. It first tries to reduce each face of the mesh to a minimal number of triangles (e.g. a large cube may have a million triangles, but only 12 are required to represent the 6 faces).
-    2. It then computes a boundary that the mesh cannot cross using Marching Cubes again, but with different ISO cutoffs (e.g. 0.4 and 0.6).
+    1. It first tries to reduce each face of the mesh to a minimal number of triangles.
+    2. It then computes a boundary that the mesh cannot cross using Marching Cubes again, but offset slightly.
     3. Using the boundary mesh to test validity of each simplification, we performs decimation on the original mesh.
   1. Finally, it writes the resulting mesh out to an STL file.
 
