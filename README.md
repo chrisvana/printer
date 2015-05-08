@@ -28,7 +28,7 @@ cd printer
 ./sphere --logtostderr --output_stl_file=/tmp/sphere.stl
 ```
 
-###### High Level Flow
+##### High Level Flow:
 The code works by:
   1. Taking a specified set of PrintObjects
   2. Filling a set of voxels based on the PrintObjects
@@ -42,8 +42,8 @@ The code works by:
 I should note that the final output is a .stl file (not the .x3g file used by most 3D printers), so you will need to slice the STL using something like ReplicatorG (or Makerware, in my case).
 
 Simplification can be quite slow (though helps later with slicing faster), and diabled via:
---driver_run_simplifier=false
---driver_run_face_reduction=false
+- --driver_run_simplifier=false
+- --driver_run_face_reduction=false
 See "Configuration flags" below for more options.
 
 ## Examples:
