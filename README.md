@@ -45,7 +45,7 @@ Simplification can be quite slow (though helps later with slicing faster), and d
 - --driver_run_simplifier=false<br />
 - --driver_run_face_reduction=false<br />
 
-_(more configuration options are described below)__
+_(more configuration options are described below)_
 
 ## Examples:
 The examples live in [printer/examples](https://github.com/chrisvana/printer/tree/master/printer/examples):
