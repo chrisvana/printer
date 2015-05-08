@@ -42,9 +42,10 @@ The code works by:
 I should note that the final output is a .stl file (not the .x3g file used by most 3D printers), so you will need to slice the STL using something like ReplicatorG (or Makerware, in my case).
 
 Simplification can be quite slow (though helps later with slicing faster), and diabled via:<br/>
-- --driver_run_simplifier=false<br/>
-- --driver_run_face_reduction=false<br/>
-See "Configuration flags" below for more options.
+- --driver_run_simplifier=false<br />
+- --driver_run_face_reduction=false<br />
+
+_(more configuration options are described below)__
 
 ## Examples:
 The examples live in [printer/examples](https://github.com/chrisvana/printer/tree/master/printer/examples):
