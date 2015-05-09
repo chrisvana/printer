@@ -13,6 +13,11 @@ class SphereObject : public PrintObject {
 ```
 ... and magically we would get a sphere printed out with radius 10cm.
 
+<img src="https://github.com/chrisvana/printer/blob/master/docs/sphere.png?raw=true" height="100">
+<img src="https://github.com/chrisvana/printer/blob/master/docs/buckle.png?raw=true" height="100">
+<img src="https://github.com/chrisvana/printer/blob/master/docs/cubes.png?raw=true" height="100">
+<img src="https://github.com/chrisvana/printer/blob/master/docs/cylinder_intersect.png?raw=true" height="100">
+<img src="https://github.com/chrisvana/printer/blob/master/docs/skull.png?raw=true" height="100">
 ## Summary
 This library is written in C++, and available under BSD-3.
 
@@ -48,12 +53,6 @@ Simplification can be quite slow (though helps later with slicing faster), and d
 _(more configuration options are described below)_
 
 ## Examples:
-<img src="https://github.com/chrisvana/printer/blob/master/docs/sphere.png?raw=true" height="100">
-<img src="https://github.com/chrisvana/printer/blob/master/docs/buckle.png?raw=true" height="100">
-<img src="https://github.com/chrisvana/printer/blob/master/docs/cubes.png?raw=true" height="100">
-<img src="https://github.com/chrisvana/printer/blob/master/docs/cylinder_intersect.png?raw=true" height="100">
-<img src="https://github.com/chrisvana/printer/blob/master/docs/skull.png?raw=true" height="100">
-
 The examples live in [printer/examples](https://github.com/chrisvana/printer/tree/master/printer/examples):
 - [sphere](https://github.com/chrisvana/printer/blob/master/printer/examples/sphere.cc): Produces a sphere.
 - [buckle](https://github.com/chrisvana/printer/blob/master/printer/examples/buckle.cc): Produces a curved buckle.
