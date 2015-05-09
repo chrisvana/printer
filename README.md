@@ -67,7 +67,7 @@ The examples live in [printer/examples](https://github.com/chrisvana/printer/tre
 
 It does so by taking all frames from all input DICOM files, mapping the pixels in them to points, and then interpolates values in our voxel map based on the pixel values.
 
-The [print_dicom](https://github.com/chrisvana/printer/blob/master/printer/examples/print_dicom.cc) example can be used to actually print a DICOM file, see the file for instructions.
+The [print_dicom](https://github.com/chrisvana/printer/blob/master/printer/examples/print_dicom.cc) example can be used to actually generate an STL file from a DICOM file, see print_dicom.cc for instructions.
 
 ## Configuration flags
 (Not all are included)
