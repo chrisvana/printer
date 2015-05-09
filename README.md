@@ -38,7 +38,7 @@ The code works by:
   1. Taking a specified set of PrintObjects
   2. Filling a set of voxels based on the PrintObjects
   3. Uses a Marching Cubes algorithm to triangulate the voxels into a mesh
-  4. Performs simplification
+  4. Performs simplification (optional)
     1. It first tries to reduce each face of the mesh to a minimal number of triangles.
     2. It then computes a boundary that the mesh cannot cross using Marching Cubes again, but offset slightly.
     3. Using the boundary mesh to test validity of each simplification, we performs decimation on the original mesh.
