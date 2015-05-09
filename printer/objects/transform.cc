@@ -43,16 +43,17 @@ void FillMinMax(GeometryTransform* transform,
 template <bool standard>
 Box TransformBox(GeometryTransform* transform,
                  const Box& b) {
-    Point min_point = b.corner1();
-    Point max_point = b.corner1();
-    FillMinMax<standard>(transform, b.corner2(), &min_point, &max_point);
-    FillMinMax<standard>(transform, b.corner3(), &min_point, &max_point);
-    FillMinMax<standard>(transform, b.corner4(), &min_point, &max_point);
-    FillMinMax<standard>(transform, b.corner5(), &min_point, &max_point);
-    FillMinMax<standard>(transform, b.corner6(), &min_point, &max_point);
-    FillMinMax<standard>(transform, b.corner7(), &min_point, &max_point);
-    FillMinMax<standard>(transform, b.corner8(), &min_point, &max_point);
-    return Box(min_point, max_point);
+  Point min_point = (standard ? transform->Transform(b.corner1()) :
+                     transform->InverseTransform(b.corner1()));
+  Point max_point = min_point;
+  FillMinMax<standard>(transform, b.corner2(), &min_point, &max_point);
+  FillMinMax<standard>(transform, b.corner3(), &min_point, &max_point);
+  FillMinMax<standard>(transform, b.corner4(), &min_point, &max_point);
+  FillMinMax<standard>(transform, b.corner5(), &min_point, &max_point);
+  FillMinMax<standard>(transform, b.corner6(), &min_point, &max_point);
+  FillMinMax<standard>(transform, b.corner7(), &min_point, &max_point);
+  FillMinMax<standard>(transform, b.corner8(), &min_point, &max_point);
+  return Box(min_point, max_point);
 }
 }  // anonymous namespace
 

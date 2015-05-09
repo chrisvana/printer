@@ -44,6 +44,11 @@ class Point {
 
   void Normalize();
   void RotateAround(const Point& vec, double angle_radians);
+  Point RotatedAround(const Point& vec, double angle_radians) const {
+    Point copy = *this;
+    copy.RotateAround(vec, angle_radians);
+    return copy;
+  }
 
   // Arithmetic.
   Point operator+(const Point& other) const;

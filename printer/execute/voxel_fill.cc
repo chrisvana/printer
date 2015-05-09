@@ -54,8 +54,11 @@ class VoxelFill::ObjectSet {
     float max_val = 0;
     for (int i = 0; max_val < 1 && i < objects_.size(); ++i) {
       max_val = std::max(max_val, objects_[i]->ISOValue(point));
+      if (max_val >= 1) {
+        return 1;
+      }
     }
-    return max_val;
+    return std::max(0.0f, max_val);
   }
 
   // FullyContains
