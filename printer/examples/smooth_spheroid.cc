@@ -7,9 +7,13 @@
 #include "common/base/init.h"
 #include "printer/stl/driver.h"
 #include "printer/objects/primitives.h"
+#include "printer/objects/transform.h"
 
 DEFINE_string(output_stl_file, "",
               "If set, where to write output stl.");
+
+DEFINE_bool(merge_spheroids, false,
+            "If true, we print out two merged spheroids");
 
 namespace printer {
 namespace {
@@ -44,8 +48,15 @@ class IsoSpheroid : public PrintObject {
 };
 
 PrintObject* GetObject() {
-  return new IsoSpheroid(Box(Point(0, 0, 0),
-                             Point(30, 30, 20)));
+  if (FLAGS_merge_spheroids) {
+    return new SmoothUnion(new IsoSpheroid(Box(Point(0, 0, 0),
+                                               Point(30, 30, 20))),
+                           new IsoSpheroid(Box(Point(20, 0, 0),
+                                               Point(50, 30, 20))));
+  } else {
+    return new IsoSpheroid(Box(Point(0, 0, 0),
+                               Point(30, 30, 20)));
+  }
 }
 
 }  // anonymous namespace

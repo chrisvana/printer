@@ -161,35 +161,35 @@ bool DifferenceObject::ThreadSafe() {
   return object_a_->ThreadSafe() && object_b_->ThreadSafe();
 }
 
-SubtractObject::SubtractObject(PrintObject* object_a,
+RemoveObject::RemoveObject(PrintObject* object_a,
                                PrintObject* object_b_to_remove_from_a)
     : object_a_(object_a),
       object_b_(object_b_to_remove_from_a) {
 }
 
-SubtractObject::~SubtractObject() {
+RemoveObject::~RemoveObject() {
 }
 
-float SubtractObject::ISOValue(const Point& p) {
+float RemoveObject::ISOValue(const Point& p) {
   float a = object_a_->ISOValue(p);
   return (a > 0 && !object_b_->ContainsPoint(p) ? a : 0);
 }
 
-bool SubtractObject::BoundingBox(Box* out) {
+bool RemoveObject::BoundingBox(Box* out) {
   return object_a_->BoundingBox(out);
 }
 
-bool SubtractObject::FullyContains(const Box& input) {
+bool RemoveObject::FullyContains(const Box& input) {
   return (object_a_->FullyContains(input) &&
           !object_b_->MayIntersectRegion(input));
 }
 
-bool SubtractObject::MayIntersectRegion(const Box& b) {
+bool RemoveObject::MayIntersectRegion(const Box& b) {
   return (object_a_->MayIntersectRegion(b) &&
           (!object_b_->MayIntersectRegion(b) || !object_b_->FullyContains(b)));
 }
 
-bool SubtractObject::ThreadSafe() {
+bool RemoveObject::ThreadSafe() {
   return object_a_->ThreadSafe() && object_b_->ThreadSafe();
 }
 
@@ -263,6 +263,74 @@ bool InvertObject::MayIntersectRegion(const Box& input) {
 
 bool InvertObject::ThreadSafe() {
   return object_->ThreadSafe();
+}
+
+SmoothUnion::SmoothUnion(PrintObject* a, PrintObject* b)
+    : UnionObject(a, b) {
+}
+
+SmoothUnion::~SmoothUnion() {
+}
+
+float SmoothUnion::ISOValue(const Point& p) {
+  float a = object_a_->ISOValue(p);
+  if (a == 1) {
+    return 1;
+  }
+
+  float b = object_b_->ISOValue(p);
+  if (b == 1) {
+    return 1;
+  }
+
+  return std::min<float>(1.0f, sqrt(a*a + b*b));
+}
+
+AddObject::AddObject(PrintObject* object_a, PrintObject* object_b)
+    : UnionObject(object_a, object_b) {
+}
+
+AddObject::~AddObject() {
+}
+
+float AddObject::ISOValue(const Point& p) {
+  float a = object_a_->ISOValue(p);
+  return (a == 1 ? 1 : std::min(1.0f, a + object_b_->ISOValue(p)));
+}
+
+SubtractObject::SubtractObject(PrintObject* object_a, PrintObject* object_b)
+    : RemoveObject(object_a, object_b) {
+}
+
+SubtractObject::~SubtractObject() {
+}
+
+float SubtractObject::ISOValue(const Point& p) {
+  float a = object_a_->ISOValue(p);
+  return (a == 0 ? 0 : std::max(0.0f, a - object_b_->ISOValue(p)));
+}
+
+MultiplyObject::MultiplyObject(PrintObject* object_a, PrintObject* object_b)
+    : IntersectObject(object_a, object_b) {
+}
+
+MultiplyObject::~MultiplyObject() {
+}
+
+float MultiplyObject::ISOValue(const Point& p) {
+  float a = object_a_->ISOValue(p);
+  return a == 0 ? 0 : a * object_b_->ISOValue(p);
+}
+
+SmoothInvertObject::SmoothInvertObject(PrintObject* object_a)
+    : InvertObject(object_a) {
+}
+
+SmoothInvertObject::~SmoothInvertObject() {
+}
+
+float SmoothInvertObject::ISOValue(const Point& p) {
+  return 1.0 - object_->ISOValue(p);
 }
 
 }  // namespace printer

@@ -23,27 +23,27 @@ PrintObject* GetObject() {
                                                 Point(80, 80, 50)));
 
   // Minus Inside Cylinder
-  outside = new SubtractObject(outside, new CylinderObject(
-      Box(Point(8, 8, 0),
-          Point(72, 72, 50))));
+  outside = new RemoveObject(outside,
+                             new CylinderObject(Box(Point(8, 8, 0),
+                                                    Point(72, 72, 50))));
   
   // Minus slits
-  outside = new SubtractObject(outside,
-                               new RectangleObject(Box(Point(0, 25, 5),
-                                                       Point(100, 35, 45))));
-  outside = new SubtractObject(outside,
-                               new RectangleObject(Box(Point(0, 45, 5),
-                                                       Point(100, 55, 45))));
+  outside = new RemoveObject(outside,
+                             new RectangleObject(Box(Point(0, 25, 5),
+                                                     Point(100, 35, 45))));
+  outside = new RemoveObject(outside,
+                             new RectangleObject(Box(Point(0, 45, 5),
+                                                     Point(100, 55, 45))));
 
   // Minus inverted cylinders for smoothness.
-  PrintObject* inverted_shell = new SubtractObject(
+  PrintObject* inverted_shell = new RemoveObject(
       new CylinderObject(Box(Point(-70, 0, 5), Point(10, 80, 45))),
       new CylinderObject(Box(Point(-65, 5, 5), Point(5, 75, 45))));
-  outside = new SubtractObject(outside, inverted_shell);
-  inverted_shell = new SubtractObject(
+  outside = new RemoveObject(outside, inverted_shell);
+  inverted_shell = new RemoveObject(
       new CylinderObject(Box(Point(-5, -5, 5), Point(85, 85, 45))),
       new CylinderObject(Box(Point(0, 8, 5), Point(80, 72, 45))));
-  outside = new SubtractObject(outside, inverted_shell);
+  outside = new RemoveObject(outside, inverted_shell);
 
   // Only for box area
   outside = new IntersectObject(outside,
