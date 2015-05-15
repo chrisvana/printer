@@ -191,7 +191,7 @@ void Driver::RunSimplifier(PrintBoxTracker* box,
   unique_ptr<Octree> octree;
   if (simplifier.RequiresBoundary()) {
     LOG(INFO) << "Computing boundary. ======================================= ";
-    octree.reset(ComputeBoundary(*box->box));
+    octree.reset(ComputeBoundary(*mesh, *box->box));
     if (octree.get() == NULL) {
       LOG(FATAL) << "Simplifier requires boundary, but no boundary information "
                  << "supplied to Driver.";
@@ -208,7 +208,8 @@ void Driver::RunSimplifier(PrintBoxTracker* box,
   simplifier.Execute(octree.get(), mesh);
 }
 
-Octree* Driver::ComputeBoundary(const PrintBox& box) const {
+Octree* Driver::ComputeBoundary(const TriangleMesh& base,
+                                const PrintBox& box) const {
   unique_ptr<MarchingCubes> cubes(GetCubes(true /* for boundary */));
 
   if (input_.boundary_is_single_voxel()) {
@@ -217,7 +218,7 @@ Octree* Driver::ComputeBoundary(const PrintBox& box) const {
     cubes->ExecuteWithBoundary(box, input_.iso_level(), NULL, &boundary);
     VLOG(1) << "Finished boundary.";
     RunReduction(true, &boundary);
-    return boundary.NewOctree(boundary.MinimalBoundingBox(), false);
+    return boundary.NewOctree(GetBoundaryBox(base, boundary, box), false);
   }
 
   unique_ptr<Octree> octree;
@@ -228,7 +229,7 @@ Octree* Driver::ComputeBoundary(const PrintBox& box) const {
     VLOG(1) << "Finished outer boundary.";
     RunReduction(true, &outer);
     VLOG(1) << "Building final octree.";
-    octree.reset(outer.NewOctree(outer.MinimalBoundingBox(), false));
+    octree.reset(outer.NewOctree(GetBoundaryBox(base, outer, box), false));
     CHECK(octree.get());
   }
 
@@ -241,7 +242,7 @@ Octree* Driver::ComputeBoundary(const PrintBox& box) const {
     VLOG(1) << "Building final octree.";
     if (octree.get() == NULL) {
       VLOG(3) << "No outer boundary found.";
-      octree.reset(inner.NewOctree(box.BoundingBox(), false));
+      octree.reset(inner.NewOctree(GetBoundaryBox(base, inner, box), false));
     } else {
       VLOG(3) << "Merging inner/outer octrees.";
       for (TriangleMesh::TriangleIterator iter = inner.iterator();
@@ -281,6 +282,18 @@ void Driver::RunReduction(bool allow_broken, TriangleMesh* mesh) const {
   face_input.set_allow_broken_faces(allow_broken);
   FaceReduction red(face_input);
   red.Execute(mesh);
+}
+
+Box Driver::GetBoundaryBox(const TriangleMesh& base,
+                           const TriangleMesh& test,
+                           const PrintBox& box) const {
+  Box test_box = test.MinimalBoundingBox();
+  Box base_box = base.MinimalBoundingBox();
+  Box region = box.BoundingBox();
+  if (test_box.Unioned(base_box) == test_box) {
+    return test_box;
+  }
+  return region;
 }
 
 }  // namespace printer

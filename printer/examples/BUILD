@@ -54,7 +54,7 @@
     "name": "print_dicom",
     "cc_sources": [ "print_dicom.cc" ],
     "dependencies": [
-        "//common/base:base_tcmalloc",
+        "//common/base:base",  // Not _tcmalloc, uses too much memory?
         "//common/file:fileutil",
         "//common/strings:strutil",
         "//printer/dicom:dicom_set",

@@ -110,13 +110,8 @@ void FillDriverInput(const DicomPrintObject::PrintInfo& info,
   input->mutable_voxel_input()->set_print_box_name("FloatPrintBox");
 
   // Compute print region.
-  Box region;
-  info.print_object->BoundingBox(&region);
-  Box min_region(Point(0, 0, 0), Point(info.horizontal_res,
-                                       info.horizontal_res,
-                                       info.vertical_res) * 2);
-  region.UnionWith(min_region);
-  *input->mutable_voxel_input()->mutable_print_region() = region;
+  info.print_object->BoundingBox(
+      input->mutable_voxel_input()->mutable_print_region());
 
   // Resolution.
   input->mutable_voxel_input()->set_horizontal_resolution(

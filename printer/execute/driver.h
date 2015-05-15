@@ -110,7 +110,10 @@ class Driver {
   void RunSimplifier(PrintBoxTracker* box,
                      TriangleMesh* mesh) const;
   MarchingCubes* GetCubes(bool for_boundary) const;
-  Octree* ComputeBoundary(const PrintBox& box) const;
+  Octree* ComputeBoundary(const TriangleMesh& base, const PrintBox& box) const;
+  Box GetBoundaryBox(const TriangleMesh& base,
+                     const TriangleMesh& test,
+                     const PrintBox& box) const;
   void RunReduction(bool allow_broken, TriangleMesh* mesh) const;
   DISALLOW_COPY_AND_ASSIGN(Driver);
 

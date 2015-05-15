@@ -287,6 +287,21 @@ Box VoxelFill::DetermineRegion(const std::vector<PrintObject*>& objects) const {
     }
     unioned.UnionWith(next);
   }
+
+  // Make sure xyz axis all meet or minimum size.
+  if (unioned.size_x() < input_.horizontal_resolution()) {
+    unioned.UnionWith(unioned.top() +
+                      Point(input_.horizontal_resolution(), 0, 0));
+  }
+  if (unioned.size_y() < input_.horizontal_resolution()) {
+    unioned.UnionWith(unioned.top() +
+                      Point(0, input_.horizontal_resolution(), 0));
+  }
+  if (unioned.size_z() < input_.vertical_resolution()) {
+    unioned.UnionWith(unioned.top() +
+                      Point(0, 0, input_.vertical_resolution()));
+  }
+
   return input_.print_region().IntersectedWith(unioned);
 }
 
