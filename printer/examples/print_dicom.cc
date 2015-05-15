@@ -41,6 +41,8 @@ nice ./print_dicom --input_dicom_files=path/to/Downloads/Tomato/IM_* \
 #include "printer/execute/driver.h"
 #include "printer/execute/print_box.h"
 #include "printer/objects/object.h"
+#include "printer/objects/primitives.h"
+#include "printer/objects/transform.h"
 
 using std::string;
 using std::vector;
@@ -57,6 +59,20 @@ DEFINE_string(output_stl_file, "",
 DEFINE_double(dicom_resolution_scale, 1,
               "Scaling value on resolution relative to DICOM native.");
 
+// Optional way to restrict to a specific subregion.
+DEFINE_double(dicom_min_x_value, -1,
+              "If >=0, we add a bounding box for this region.");
+DEFINE_double(dicom_min_y_value, -1,
+              "If >=0, we add a bounding box for this region.");
+DEFINE_double(dicom_min_z_value, -1,
+              "If >=0, we add a bounding box for this region.");
+DEFINE_double(dicom_max_x_value, -1,
+              "If >=0, we add a bounding box for this region.");
+DEFINE_double(dicom_max_y_value, -1,
+              "If >=0, we add a bounding box for this region.");
+DEFINE_double(dicom_max_z_value, -1,
+              "If >=0, we add a bounding box for this region.");
+
 namespace {
 vector<string> GetFileName(const string& pattern) {
   vector<string> splits = strings::SplitString(pattern, ",");
@@ -70,43 +86,70 @@ vector<string> GetFileName(const string& pattern) {
   return files;
 }
 
+PrintObject* MaybeAddIntersect(PrintObject* input) {
+  if (FLAGS_dicom_min_x_value >= 0 ||
+      FLAGS_dicom_min_y_value >= 0 ||
+      FLAGS_dicom_min_z_value >= 0 ||
+      FLAGS_dicom_max_x_value >= 0 ||
+      FLAGS_dicom_max_y_value >= 0 ||
+      FLAGS_dicom_min_z_value >= 0) {
+    Box bounds(Point(FLAGS_dicom_min_x_value,
+                     FLAGS_dicom_min_y_value,
+                     FLAGS_dicom_min_z_value),
+               Point(FLAGS_dicom_max_x_value,
+                     FLAGS_dicom_max_y_value,
+                     FLAGS_dicom_max_z_value));
+    return new printer::IntersectObject(new printer::RectangleObject(bounds),
+                                        input);
+  }
+  return input;
+}
+
+void FillDriverInput(const DicomPrintObject::PrintInfo& info,
+                     Driver::Input* input) {
+  input->mutable_voxel_input()->set_print_box_name("FloatPrintBox");
+
+  // Compute print region.
+  Box region;
+  info.print_object->BoundingBox(&region);
+  Box min_region(Point(0, 0, 0), Point(info.horizontal_res,
+                                       info.horizontal_res,
+                                       info.vertical_res) * 2);
+  region.UnionWith(min_region);
+  *input->mutable_voxel_input()->mutable_print_region() = region;
+
+  // Resolution.
+  input->mutable_voxel_input()->set_horizontal_resolution(
+      info.horizontal_res * FLAGS_dicom_resolution_scale);
+  input->mutable_voxel_input()->set_vertical_resolution(
+      info.vertical_res * FLAGS_dicom_resolution_scale);
+}
+
 }  // anonymous namespace
 
 int main(int argc, char** argv) {
   InitProgram(&argc, &argv);
 
-  // Set up input objects.
+  // Set up input DICOM.
   unique_ptr<DicomPrintObject::PrintInfo> input_dicom(
-      DicomPrintObject::LoadFromFiles(
+      DicomPrintObject::LoadFromFilesParallel(
           GetFileName(FLAGS_input_dicom_files)));
   if (input_dicom.get() == NULL) {
     LOG(ERROR) << "Could not initialize voxel map from files.";
     return 1;
   }
 
-  // Execute.
+  // Set up driver.
+  Driver::Input input;
+  input.set_owns_objects(true);
+  FillDriverInput(*input_dicom, &input);
+  Driver driver(input);
+
+  // Execute (and delete objects):
   TriangleMesh output;
   {
-    Driver::Input input;
-    // TODO: Use "Uint8PrintBox"?
-    input.mutable_voxel_input()->set_print_box_name("FloatPrintBox");
-    Box region;
-    {  // Compute print region.
-      input_dicom->print_object->BoundingBox(&region);
-      Box min_region(Point(0, 0, 0), Point(input_dicom->horizontal_res,
-                                           input_dicom->horizontal_res,
-                                           input_dicom->vertical_res) * 2);
-      region.UnionWith(min_region);
-    }
-    *input.mutable_voxel_input()->mutable_print_region() = region;
-    input.mutable_voxel_input()->set_horizontal_resolution(
-        input_dicom->horizontal_res * FLAGS_dicom_resolution_scale);
-    input.mutable_voxel_input()->set_vertical_resolution(
-        input_dicom->vertical_res * FLAGS_dicom_resolution_scale);
-    Driver driver(input);
-
     vector<PrintObject*> objects;
-    objects.push_back(input_dicom->print_object.get());
+    objects.push_back(MaybeAddIntersect(input_dicom->print_object.release()));
     driver.Execute(objects, &output);
   }
 

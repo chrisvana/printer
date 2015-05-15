@@ -47,6 +47,7 @@ class Driver_Input {
   }
   thread::ThreadPool* pool() const { return pool_; }
   int parallelism() const { return parallelism_; }
+  bool owns_objects() const { return owns_objects_; }
 
   // Mutators
   void set_run_face_reduction(bool run) { run_face_reduction_ = run; }
@@ -72,6 +73,7 @@ class Driver_Input {
   }
   void set_pool(thread::ThreadPool* pool) { pool_ = pool; }
   void set_parallelism(int p) { parallelism_ = p; }
+  void set_owns_objects(bool owns) { owns_objects_ = owns; }
 
  private:
   bool run_face_reduction_;
@@ -87,6 +89,7 @@ class Driver_Input {
   MarchingCubes::Input marching_cubes_input_;
   thread::ThreadPool* pool_;
   int parallelism_;
+  bool owns_objects_;
 };
 
 class Driver {
@@ -100,7 +103,12 @@ class Driver {
   void ExecuteWithBox(const PrintBox& print_box, TriangleMesh* output) const;
 
  private:
-  void RunSimplifier(const PrintBox& box, TriangleMesh* mesh) const;
+  struct PrintBoxTracker;
+  void ExecuteInternal(PrintBoxTracker* print_box,
+                       TriangleMesh* mesh) const;
+  bool MightSimplify(const TriangleMesh& mesh) const;
+  void RunSimplifier(PrintBoxTracker* box,
+                     TriangleMesh* mesh) const;
   MarchingCubes* GetCubes(bool for_boundary) const;
   Octree* ComputeBoundary(const PrintBox& box) const;
   void RunReduction(bool allow_broken, TriangleMesh* mesh) const;

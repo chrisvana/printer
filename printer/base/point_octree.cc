@@ -4,6 +4,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <sstream>
 #include "common/log/log.h"
 #include "printer/base/geometry.h"
 #include "printer/base/point_octree.h"
@@ -27,48 +28,17 @@ PointList::PointMode PointList::FromString(
   LOG(FATAL) << "Unknown PointMode: " << name;
 }
 
-float PointList::GetInterpolate() const {
-  // Take a linear combination of each quadrant, weighted by inverse of
-  // distance.
-  double total_weight = 0, total_average = 0;
+std::string PointList::DebugString() const {
+  std::stringstream out;
+  out << "Point: " << center_.DebugString() << std::endl;
+  out << "Range: " << range_.DebugString() << std::endl;
   for (int i = 0; i < 8; ++i) {
-    if (dist2_[i] == std::numeric_limits<double>::max()) {
-      continue;
-    }
-    double dist = sqrt(dist2_[i]);
-    if (dist < Triangle::kDefaultIntersectEpsilon) {
-      return val_[i];
-    }
-
-    double weight = 1.0/dist;
-    total_weight += weight;
-    total_average += weight * val_[i];
+    out << "quad[" << i << "] = " << (quad_[i] ? "TRUE" : "FALSE") << std::endl;
   }
-
-  double val = total_weight == 0 ? 0 : total_average / total_weight;
-  return val;
-}
-
-float PointList::GetMaxValue() const {
-  double max_val = 0;
-  for (int i = 0; i < 8; ++i) {
-    if (dist2_[i] == std::numeric_limits<double>::max()) {
-      continue;
-    }
-    max_val = std::max(max_val, val_[i]);
-  }
-  return max_val;
-}
-
-float PointList::GetClosestValue() const {
-  double best_val = 0, dist = std::numeric_limits<double>::max();
-  for (int i = 0; i < 8; ++i) {
-    if (dist < dist2_[i]) {
-      dist = dist2_[i];
-      best_val = val_[i];
-    }
-  }
-  return best_val;
+  out << "Interpolate: " << GetInterpolate() << std::endl;
+  out << "Max: " << GetMaxValue() << std::endl;
+  out << "Closest: " << GetClosestValue() << std::endl;
+  return out.str();
 }
 
 class PointOctree::InternalOctree {

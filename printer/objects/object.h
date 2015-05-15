@@ -25,6 +25,9 @@ class PrintObject {
   }
   virtual bool FullyContains(const Box& box) = 0;  // Will set region ISO=1.
   virtual bool ThreadSafe() = 0;
+
+  // Optional.
+  virtual void MaybeCleanupMemory() {}
 };
 
 }  // namespace printer

@@ -126,7 +126,10 @@ PrintBox* VoxelFill::Execute(const vector<PrintObject*>& objects) const {
                                   input_.horizontal_resolution(),
                                   input_.vertical_resolution()));
   output->SetOrigin(print_region.bottom());
-  LOG(INFO) << "Computing voxels for region: " << print_region.DebugString();
+  LOG(INFO) << "Computing voxels for region: "
+            << print_region.DebugString()
+            << " with resolution h=" << input_.horizontal_resolution()
+            << ", v=" << input_.vertical_resolution();
 
   Semaphore sem;
   Mutex lock;

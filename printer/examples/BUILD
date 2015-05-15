@@ -45,6 +45,12 @@
 } },
 
 { "cc_binary": {
+    "name": "smooth_spheroid",
+    "cc_sources": [ "smooth_spheroid.cc" ],
+    "dependencies": [ ":example_base" ]
+} },
+
+{ "cc_binary": {
     "name": "print_dicom",
     "cc_sources": [ "print_dicom.cc" ],
     "dependencies": [
@@ -55,6 +61,8 @@
         "//printer/execute:driver",
         "//printer/execute:print_box",
         "//printer/objects:object",
+        "//printer/objects:primitives",
+        "//printer/objects:transform",
         "//printer/stl:format"
     ]
 } }

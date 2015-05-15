@@ -53,6 +53,23 @@ using std::unique_ptr;
 using std::vector;
 
 namespace printer {
+struct Driver::PrintBoxTracker {
+  PrintBoxTracker(const PrintBox* b, bool can)
+      : box(b), can_delete(can), deleted(false) {
+  }
+
+  const PrintBox* box;
+  bool can_delete, deleted;
+
+  void MaybeDelete() {
+    if (can_delete && !deleted) {
+      VLOG(1) << "Cleaning up voxels to save memory.";
+      delete box;
+      deleted = true;
+    }
+  }
+  bool CanUse() const { return !deleted; }
+};
 
 Driver_Input::Driver_Input()
     : run_face_reduction_(FLAGS_driver_run_face_reduction),
@@ -63,7 +80,8 @@ Driver_Input::Driver_Input()
       inner_boundary_iso_level_(FLAGS_driver_inner_boundary_iso_level),
       boundary_is_single_voxel_(FLAGS_driver_boundary_is_single_voxel),
       pool_(NULL),
-      parallelism_(FLAGS_driver_default_parallelism) {
+      parallelism_(FLAGS_driver_default_parallelism),
+      owns_objects_(false) {
 }
 
 Driver::Driver(const Input& input)
@@ -84,12 +102,24 @@ Driver::~Driver() {
 void Driver::Execute(const vector<PrintObject*>& objects,
                      TriangleMesh* mesh) const {
   LOG(INFO) << "Computing voxels =========================================== ";
+
+  // Compute our voxels.
   VoxelFill::Input input = input_.voxel_input();
   if (pool_ != NULL) {
     input.set_pool(pool_);
   }
   VoxelFill fill(input);
   unique_ptr<PrintBox> box(fill.Execute(objects));
+
+  // Maybe free some memory.
+  if (input_.owns_objects()) {
+    VLOG(1) << "Cleaning up objects to free memory.";
+    for (int i = 0; i < objects.size(); ++i) {
+      delete objects[i];
+    }
+  }
+
+  // Some logging.
   if (VLOG_IS_ON(2)) {
     double counts[256];
     for (int i = 0; i < 256; ++i) { counts[i] = 0; }
@@ -107,27 +137,51 @@ void Driver::Execute(const vector<PrintObject*>& objects,
                 << prev / total * 100 << "%" << std::endl;
     }
   }
-  ExecuteWithBox(*box, mesh);
+
+  // Generate triangle mesh from voxel map.
+  PrintBoxTracker tracker(box.release(), true);
+  ExecuteInternal(&tracker, mesh);
+  tracker.MaybeDelete();
 }
 
 void Driver::ExecuteWithBox(const PrintBox& box, TriangleMesh* mesh) const {
+  PrintBoxTracker tracker(&box, false);
+  ExecuteInternal(&tracker, mesh);
+}
+
+
+void Driver::ExecuteInternal(PrintBoxTracker* box,
+                             TriangleMesh* mesh) const {
   LOG(INFO) << "Building initial mesh. ====================================== ";
   unique_ptr<MarchingCubes> cubes(GetCubes(false));
-  cubes->ExecuteWithISO(box, input_.iso_level(), mesh);
+  cubes->ExecuteWithISO(*box->box, input_.iso_level(), mesh);
+
+  // Maybe reduce our memory if we don't need the PrintBox anymore.
+  if (!MightSimplify(*mesh)) {
+    box->MaybeDelete();
+  }
+
   LOG(INFO) << "Initial triangle count: " << mesh->size();
   RunReduction(false, mesh);
 
-  if (input_.run_simplifier() &&
-      (input_.min_triangles_to_simplify() < 0 ||
-       mesh->size() >= input_.min_triangles_to_simplify())) {
+  if (MightSimplify(*mesh) && box->CanUse()) {
     LOG(INFO) << "Simplifying mesh, initial triangle count: " << mesh->size();
     RunSimplifier(box, mesh);
   }
 
   LOG(INFO) << "Final triangle count: " << mesh->size();
+  VLOG(2) << "Final bounding box: "
+          << mesh->MinimalBoundingBox().DebugString();
 }
 
-void Driver::RunSimplifier(const PrintBox& box, TriangleMesh* mesh) const {
+bool Driver::MightSimplify(const TriangleMesh& mesh) const {
+   return input_.run_simplifier() &&
+       (input_.min_triangles_to_simplify() < 0 ||
+        mesh.size() >= input_.min_triangles_to_simplify());
+}
+
+void Driver::RunSimplifier(PrintBoxTracker* box,
+                           TriangleMesh* mesh) const {
   ParallelSimplifier::Input simplifier_input = input_.simplifier_input();
   if (simplifier_input.pool() == NULL) {
     simplifier_input.set_pool(pool_);
@@ -137,12 +191,14 @@ void Driver::RunSimplifier(const PrintBox& box, TriangleMesh* mesh) const {
   unique_ptr<Octree> octree;
   if (simplifier.RequiresBoundary()) {
     LOG(INFO) << "Computing boundary. ======================================= ";
-    octree.reset(ComputeBoundary(box));
+    octree.reset(ComputeBoundary(*box->box));
     if (octree.get() == NULL) {
       LOG(FATAL) << "Simplifier requires boundary, but no boundary information "
                  << "supplied to Driver.";
     }
   }
+
+  box->MaybeDelete();
 
   VLOG(1) << "Initializing mesh octree.";
   mesh->InitializeOctreeUnsafe(octree != NULL ? octree->range() :
