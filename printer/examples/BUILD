@@ -9,6 +9,12 @@
 } },
 
 { "cc_binary": {
+    "name": "branching",
+    "cc_sources": [ "branching.cc" ],
+    "dependencies": [ ":example_base" ]
+} },
+
+{ "cc_binary": {
     "name": "sphere",
     "cc_sources": [ "sphere.cc" ],
     "dependencies": [ ":example_base" ]
@@ -17,6 +23,12 @@
 { "cc_binary": {
     "name": "cylinder",
     "cc_sources": [ "cylinder.cc" ],
+    "dependencies": [ ":example_base" ]
+} },
+
+{ "cc_binary": {
+    "name": "barrel",
+    "cc_sources": [ "barrel.cc" ],
     "dependencies": [ ":example_base" ]
 } },
 
@@ -49,7 +61,6 @@
     "cc_sources": [ "smooth_spheroid.cc" ],
     "dependencies": [ ":example_base" ]
 } },
-
 { "cc_binary": {
     "name": "print_dicom",
     "cc_sources": [ "print_dicom.cc" ],

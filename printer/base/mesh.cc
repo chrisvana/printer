@@ -386,7 +386,8 @@ bool TriangleMesh::TwoPointOverlap(const PointInfo& primary,
        secondary.triangles.size() ?
        secondary.triangles : primary.triangles);
 
-  thread_local unordered_map<int, bool> points;
+  // TODO:thread_local
+  unordered_map<int, bool> points;
   points.clear();
   for (const InternalTriangle& t : small) {
     points[t.p0] = false;

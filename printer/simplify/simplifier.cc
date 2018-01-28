@@ -147,7 +147,8 @@ void Simplifier::EnqueueEdge(const Edge& edge,
   Point new_vertex = (edge.p0() + edge.p1()) / 2;
 
   // Try and collapse the edge.
-  thread_local TriangleMesh::TriangleList old_triangles, new_triangles;
+  // TODO:thread_local
+  TriangleMesh::TriangleList old_triangles, new_triangles;
   old_triangles.clear();
   new_triangles.clear();
   if (!mesh.TestEdgeCollapse(

@@ -194,10 +194,10 @@ void VoxelFill::ProcessSplit(const Box& print_region,
 
 void VoxelFill::LogProgress(PrintBox* output, Mutex* lock) const {
   // TODO: mutex?
-  LOG_EVERY_N(INFO, 10000)
-      << "Processed: "
-      << static_cast<double>(output->fill_calls()) / output->size() * 100
-      << "%";
+  //LOG_EVERY_N(INFO, 10000)
+  //    << "Processed: "
+  //    << static_cast<double>(output->fill_calls()) / output->size() * 100
+  //    << "%";
 }
 
 void VoxelFill::ProcessRange(const Box& print_region,
